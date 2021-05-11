@@ -129,6 +129,7 @@ public class ResponseCacheImpl implements ResponseCache {
         long responseCacheUpdateIntervalMs = serverConfig.getResponseCacheUpdateIntervalMs();
         this.readWriteCacheMap =
                 CacheBuilder.newBuilder().initialCapacity(1000)
+                        // 写缓存的过期时间180s
                         .expireAfterWrite(serverConfig.getResponseCacheAutoExpirationInSeconds(), TimeUnit.SECONDS)
                         .removalListener(new RemovalListener<Key, Value>() {
                             @Override
@@ -147,6 +148,7 @@ public class ResponseCacheImpl implements ResponseCache {
                                     Key cloneWithNoRegions = key.cloneWithoutRegions();
                                     regionSpecificKeys.put(cloneWithNoRegions, key);
                                 }
+                                // key没有，从eureka server的注册表中去读取
                                 Value value = generatePayload(key);
                                 return value;
                             }
@@ -166,6 +168,7 @@ public class ResponseCacheImpl implements ResponseCache {
         }
     }
 
+    // 更新读缓存，30s一次
     private TimerTask getCacheUpdateTask() {
         return new TimerTask() {
             @Override
@@ -344,12 +347,15 @@ public class ResponseCacheImpl implements ResponseCache {
     Value getValue(final Key key, boolean useReadOnlyCache) {
         Value payload = null;
         try {
+            // 先从只读缓存中读取，如果只读缓存为null，再从读写缓存中读取，如果还为null
             if (useReadOnlyCache) {
                 final Value currentPayload = readOnlyCacheMap.get(key);
                 if (currentPayload != null) {
                     payload = currentPayload;
                 } else {
+                    // 写缓存读
                     payload = readWriteCacheMap.get(key);
+                    // 放到读缓存里
                     readOnlyCacheMap.put(key, payload);
                 }
             } else {
@@ -407,6 +413,7 @@ public class ResponseCacheImpl implements ResponseCache {
                 case Application:
                     boolean isRemoteRegionRequested = key.hasRegions();
 
+                    // 获取注册表信息
                     if (ALL_APPS.equals(key.getName())) {
                         if (isRemoteRegionRequested) {
                             tracer = serializeAllAppsWithRemoteRegionTimer.start();
