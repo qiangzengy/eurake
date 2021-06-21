@@ -110,6 +110,8 @@ public class ApplicationsResource {
      *         from the {@link AbstractInstanceRegistry}.
      */
      // 获取全量注册表信息
+
+
     @GET
     public Response getContainers(@PathParam("version") String version,
                                   @HeaderParam(HEADER_ACCEPT) String acceptHeader,

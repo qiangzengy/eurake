@@ -108,7 +108,8 @@ public class EurekaBootStrap implements ServletContextListener {
      * javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
      */
 
-    // 当Servlet 容器启动Web 应用时调用该方法。在调用完该方法之后，容器再对Filter初始化，并且对那些在Web 应用启动时就需要被初始化的Servlet 进行初始化。
+    // 当Servlet 容器启动Web 应用时调用该方法。在调用完该方法之后，
+    // 容器再对Filter初始化，并且对那些在Web 应用启动时就需要被初始化的Servlet 进行初始化。
     // 系统初始化监听器，EurekaServer启动的入口
     @Override
     public void contextInitialized(ServletContextEvent event) {
@@ -205,7 +206,6 @@ public class EurekaBootStrap implements ServletContextListener {
         // 2.初始化一个ApplicationInfoManager，包含了服务实例的信息、配置，作为服务实例管理的一个组件
         ApplicationInfoManager applicationInfoManager = null;
 
-        // 3.初始化EurekaServer内部的一个EurekaClient(用来跟其他server节点进行注册和通信)
 
         if (eurekaClient == null) {
             // 是否在云环境上
@@ -218,7 +218,7 @@ public class EurekaBootStrap implements ServletContextListener {
 
             applicationInfoManager = new ApplicationInfoManager(
                     instanceConfig, new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get());
-            
+            // 3.初始化EurekaServer内部的一个EurekaClient(用来跟其他server节点进行注册和通信)
             EurekaClientConfig eurekaClientConfig = new DefaultEurekaClientConfig();
             // 构建一个EurekaClient实例
             eurekaClient = new DiscoveryClient(applicationInfoManager, eurekaClientConfig);

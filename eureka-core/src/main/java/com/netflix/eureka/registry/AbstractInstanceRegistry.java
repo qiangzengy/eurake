@@ -192,7 +192,9 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
      */
     public void register(InstanceInfo registrant, int leaseDuration, boolean isReplication) {
         try {
+            // 读写锁
             read.lock();
+            // 获取内层Map
             Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName());
             REGISTER.increment(isReplication);
             if (gMap == null) {
@@ -236,6 +238,8 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
                 lease.setServiceUpTimestamp(existingLease.getServiceUpTimestamp());
             }
             gMap.put(registrant.getId(), lease);
+
+
             synchronized (recentRegisteredQueue) {
                 recentRegisteredQueue.add(new Pair<Long, String>(
                         System.currentTimeMillis(),
@@ -944,6 +948,9 @@ public abstract class AbstractInstanceRegistry implements InstanceRegistry {
     public Applications getApplicationDeltasFromMultipleRegions(String[] remoteRegions) {
         if (null == remoteRegions) {
             remoteRegions = allKnownRemoteRegions; // null means all remote regions.
+
+
+
         }
 
         boolean includeRemoteRegion = remoteRegions.length != 0;

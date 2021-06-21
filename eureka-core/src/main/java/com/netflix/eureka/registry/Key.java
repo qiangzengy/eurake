@@ -74,7 +74,7 @@ public class Key {
         return regions;
     }
 
-    public Key cloneWithoutRegions() {
+    public Key  cloneWithoutRegions() {
         return new Key(entityType, entityName, requestType, requestVersion, eurekaAccept);
     }
 
