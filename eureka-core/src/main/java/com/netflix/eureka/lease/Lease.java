@@ -108,6 +108,11 @@ public class Lease<T> {
      * @param additionalLeaseMs any additional lease time to add to the lease evaluation in ms.
      */
     public boolean isExpired(long additionalLeaseMs) {
+        // 这里加了两个90s
+        // additionalLeaseMs，补偿时间，防止由于网络延时，导致服务被误删除。
+        // lastUpdateTimestamp = System.currentTimeMillis() + duration;
+        // lastUpdateTimestamp + duration
+        // 所以这里存在一个bug，实际上实际是180s没有发送心跳，该实例才会被摘除
         return (evictionTimestamp > 0 || System.currentTimeMillis() > (lastUpdateTimestamp + duration + additionalLeaseMs));
     }
 
